@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Gate;
 use App\Models\Peminjaman;
 use App\Models\Anggota;
 use App\Models\Buku;
@@ -37,6 +37,17 @@ class PeminjamanController extends Controller
         }
 
         return view('peminjaman.index', compact('peminjamans'));
+    }
+
+    // 2. Method show($id) -> UNTUK SOAL 4 (Menutup Celah IDOR dengan Policy)
+    public function show($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        // MEMANGGIL POLICY (Menutup Celah A4 / IDOR Sesuai Soal 4)
+        Gate::authorize('view', $peminjaman);
+
+        return view('peminjaman.show', compact('peminjaman'));
     }
 
     // Menampilkan riwayat peminjaman yang sudah dikembalikan
@@ -145,18 +156,5 @@ class PeminjamanController extends Controller
 
         return redirect()->route('peminjaman.index')
             ->with('success', 'Pengajuan peminjaman berhasil ditolak.');
-    }
-
-    // SOAL 1 (A4): Celah IDOR (Menampilkan detail peminjaman tanpa otorisasi pemilik)
-    public function show($id)
-    {
-        // Ambil data peminjaman langsung berdasarkan ID tanpa eager loading relasi
-        $peminjaman = \App\Models\Peminjaman::find($id);
-
-        if (!$peminjaman) {
-            return response()->json(['message' => 'Data peminjaman tidak ditemukan'], 404);
-        }
-
-        return response()->json($peminjaman);
     }
 }

@@ -96,9 +96,7 @@ class BukuController extends Controller
         ], 200);
     }
 
-    /**
-     * Soal 3.e: Menghapus data buku (HTTP 200 / 404)
-     */
+    // Saol 2 3A 
     public function destroy($id): JsonResponse
     {
         $buku = Buku::find($id);
@@ -140,13 +138,13 @@ class BukuController extends Controller
         ], 200);
     }
 
-    // SOAL 1 (A2): Celah SQL Injection
+
     public function cariBuku(\Illuminate\Http\Request $request)
     {
         $judul = $request->query('judul');
         
-        // Menggabungkan variabel $judul langsung ke string query SQL tanpa parameter binding
-        $bukus = \DB::select("SELECT * FROM bukus WHERE judul = '$judul'");
+        // Aman dari SQL Injection (Parameter Binding menggunakan placeholder ?)
+        $bukus = \DB::select("SELECT * FROM bukus WHERE judul = ?", [$judul]);
         
         return response()->json($bukus);
     }

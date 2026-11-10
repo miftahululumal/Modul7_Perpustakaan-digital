@@ -346,9 +346,9 @@
                     <button class="btn btn-sm btn-outline-secondary rounded-3" onclick="loadBuku()" title="Refresh Data">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
-
+                    
                     <!-- Tombol Tambah Buku hanya muncul jika punya permission -->
-                    @can('Kelola data buku')
+                    @can('kelola-buku')
                         <button class="btn btn-action-primary btn-sm px-3 ms-sm-2 d-flex align-items-center gap-1" onclick="openAddModal()">
                             <i class="bi bi-plus-lg fs-6"></i> Tambah Buku
                         </button>
@@ -366,7 +366,10 @@
                                 <th>Judul Buku</th>
                                 <th>Penulis</th>
                                 <th class="text-center" style="width: 130px;">Tahun</th>
-                                <th class="text-center" style="width: 140px;">Aksi</th>
+                                <!-- Baris 69: Header Aksi disembunyikan untuk Siswa -->
+                                @can('kelola-buku')
+                                    <th class="text-center" style="width: 140px;">Aksi</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody id="buku-table-body">
@@ -642,13 +645,21 @@
                 `;
             }
 
+            // A1: Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
             tbody.innerHTML += `
                 <tr style="animation-delay: ${index * 0.03}s;">
                     <td class="ps-4 fw-bold text-secondary">${rowNumber}</td>
-                    <td><span class="badge-kategori"><i class="bi bi-tag-fill small opacity-75"></i>${buku.kategori}</span></td>
-                    <td><span class="fw-bold text-dark">${buku.judul}</span></td>
-                    <td class="text-secondary fw-medium">${buku.penulis}</td>
-                    <td class="text-center"><span class="badge-tahun">${buku.tahun}</span></td>
+                    <td><span class="badge-kategori"><i class="bi bi-tag-fill small opacity-75"></i>${escapeHtml(buku.kategori)}</span></td>
+                    <td><span class="fw-bold text-dark">${escapeHtml(buku.judul)}</span></td>
+                    <td class="text-secondary fw-medium">${escapeHtml(buku.penulis)}</td>
+                    <td class="text-center"><span class="badge-tahun">${escapeHtml(buku.tahun)}</span></td>
                     <td class="text-center">${actionButtons}</td>
                 </tr>
             `;
@@ -766,7 +777,7 @@
             showAlert(error.message, 'danger');
         }
     }
-    // soal nomor 4
+    // soal 2 3A
     async function deleteBuku(id) {
         if (!confirm('Apakah Anda yakin ingin menghapus buku ini?')) return;
 
@@ -798,4 +809,3 @@
         Kelola Buku
     </a>
 @endcan
-

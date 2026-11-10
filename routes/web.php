@@ -120,26 +120,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         })->name('dashboard.siswa');
     });
-
-
-    // ======================================
-    // DAFTAR DAN DETAIL BUKU
-    // ======================================
-    Route::middleware('permission:Lihat daftar buku')->group(function () {
-
-        Route::get('/buku', [BukuController::class, 'index'])
-            ->name('buku.index');
-
-        Route::get('/buku/{buku}', [BukuController::class, 'show'])
-            ->name('buku.show');
-    });
-
-
+    
     // ======================================
     // CRUD BUKU
     // ======================================
-    Route::middleware('permission:Kelola data buku')->group(function () {
-
+        Route::middleware('can:kelola-buku')->group(function () {
         Route::get('/buku/create', [BukuController::class, 'create'])
             ->name('buku.create');
 
@@ -154,6 +139,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
             ->name('buku.destroy');
+    });
+
+
+    // ======================================
+    // DAFTAR DAN DETAIL BUKU
+    // ======================================
+    Route::middleware('permission:Lihat daftar buku')->group(function () {
+
+        Route::get('/buku', [BukuController::class, 'index'])
+            ->name('buku.index');
+
+        Route::get('/buku/{buku}', [BukuController::class, 'show'])
+            ->name('buku.show');
     });
 
 
@@ -210,6 +208,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/role/{id}', [RoleController::class, 'update'])
             ->name('role.update');
 
+        // Soal 2 3A ETE)
         Route::delete('/role/{id}', [RoleController::class, 'destroy'])
             ->name('role.destroy');
     });
@@ -298,22 +297,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
     Route::middleware('auth')->group(function () {
-    // Route Celah SQL Injection (Soal 1 A2)
+    // 1. Route Cari Buku (Soal 2b - Sudah ditambal dengan Parameter Binding)
     Route::get('/buku-cari', [\App\Http\Controllers\Api\BukuController::class, 'cariBuku']);
-    
-    // SOAL 1 (A3): Celah CSRF via HTTP GET
-    Route::get('/buku/{buku}/hapus', [\App\Http\Controllers\Api\BukuController::class, 'destroy']);
+
+    // 2. Route Hapus Buku Resmi (Soal 2c - Menghapus route GET A3 dan menggantinya dengan DELETE + CSRF)
+    Route::delete('/buku/{buku}', [\App\Http\Controllers\Api\BukuController::class, 'destroy'])->name('buku.destroy');
+
+    // 3. Route Detail Peminjaman (Soal 1 A4 - Celah IDOR yang nanti ditambal dengan Policy di Soal 4)
+    Route::get('/peminjaman/{id}', [\App\Http\Controllers\PeminjamanController::class, 'show'])->name('peminjaman.show');
 });
 
-    Route::middleware('auth')->group(function () {
-    // ... route kamu yang lain ...
-
-    // Route Celah IDOR (Soal 1 A4)
-    Route::get('/peminjaman/{id}', [\App\Http\Controllers\PeminjamanController::class, 'show']);
+Route::get('/test-error', function () {
+    throw new \RuntimeException("Uji coba error sistem.");
 });
 
-
-// ==========================================
-// ROUTE LOGIN, REGISTER, LOGOUT BREEZE
-// ==========================================
 require __DIR__.'/auth.php';
