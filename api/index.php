@@ -27,5 +27,7 @@ foreach ($env as $key => $value) {
     $_SERVER[$key] = $value;
 }
 
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['SERVER_PORT'] = 443;
 // Teruskan semua permintaan ke pintu masuk Laravel yang asli
 require __DIR__ . '/../public/index.php';
