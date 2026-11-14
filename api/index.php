@@ -1,5 +1,10 @@
 <?php
 
+// Jangan cetak peringatan/notice ke respons, dan tahan keluaran supaya header (Location, Set-Cookie) tetap terkirim
+ini_set('display_errors', '0');
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING);
+ob_start();
+
 // Vercel hanya bisa menulis di /tmp, jadi folder penyimpanan Laravel dialihkan ke sana
 $storage = '/tmp/storage';
 foreach (['framework/views', 'framework/cache/data', 'framework/sessions', 'logs'] as $dir) {
