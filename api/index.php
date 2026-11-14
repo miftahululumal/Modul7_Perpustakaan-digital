@@ -8,9 +8,24 @@ foreach (['framework/views', 'framework/cache/data', 'framework/sessions', 'logs
     }
 }
 
-putenv("LARAVEL_STORAGE_PATH=$storage");
-$_ENV['LARAVEL_STORAGE_PATH'] = $storage;
-$_ENV['VIEW_COMPILED_PATH'] = "$storage/framework/views";
+$env = [
+    'LARAVEL_STORAGE_PATH'  => $storage,
+    'VIEW_COMPILED_PATH'    => "$storage/framework/views",
+    // Cache bootstrap dialihkan ke /tmp karena folder bootstrap/cache read-only
+    'APP_PACKAGES_CACHE'    => '/tmp/packages.php',
+    'APP_SERVICES_CACHE'    => '/tmp/services.php',
+    'APP_CONFIG_CACHE'      => '/tmp/config.php',
+    'APP_ROUTES_CACHE'      => '/tmp/routes.php',
+    'APP_EVENTS_CACHE'      => '/tmp/events.php',
+    // Catat galat ke STDERR supaya muncul di Runtime Logs Vercel
+    'LOG_CHANNEL'           => 'stderr',
+];
+
+foreach ($env as $key => $value) {
+    putenv("$key=$value");
+    $_ENV[$key] = $value;
+    $_SERVER[$key] = $value;
+}
 
 // Teruskan semua permintaan ke pintu masuk Laravel yang asli
 require __DIR__ . '/../public/index.php';
