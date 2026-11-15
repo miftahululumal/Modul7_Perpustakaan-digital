@@ -34,5 +34,11 @@ foreach ($env as $key => $value) {
 
 $_SERVER['HTTPS'] = 'on';
 $_SERVER['SERVER_PORT'] = 443;
+
+// Beri tahu Laravel bahwa skrip utamanya adalah /index.php di root, supaya awalan "/api" pada URL tidak dibuang
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
+$_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
+
 // Teruskan semua permintaan ke pintu masuk Laravel yang asli
 require __DIR__ . '/../public/index.php';
