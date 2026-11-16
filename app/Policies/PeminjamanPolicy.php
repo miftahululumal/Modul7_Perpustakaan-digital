@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Models; // Sesuaikan namespace jika ada di App\Policies
-
 namespace App\Policies;
 
 use App\Models\Peminjaman;
@@ -17,15 +15,16 @@ class PeminjamanPolicy
      */
     public function view(User $user, Peminjaman $peminjaman): bool
     {
-        // 1. Ambil nama role user 
-        $userData = strtolower(json_encode($user->toArray()));
-
-        // 2. Admin & Petugas boleh melihat SEMUA peminjaman
-        if (str_contains($userData, 'admin') || str_contains($userData, 'petugas')) {
+        // Admin dan petugas boleh melihat semua peminjaman
+        if ($user->hasAnyRole(['admin', 'petugas'])) {
             return true;
         }
 
-        // 3. Siswa HANYA boleh melihat peminjaman miliknya sendiri (mencegah IDOR)
-        return (int) $user->id === (int) $peminjaman->user_id;
+        // Siswa hanya boleh melihat peminjaman miliknya sendiri (mencegah IDOR).
+        // Kepemilikan ditentukan lewat anggota yang emailnya sama dengan akun.
+        $peminjaman->loadMissing('anggota');
+
+        return $peminjaman->anggota !== null
+            && $peminjaman->anggota->email === $user->email;
     }
 }
